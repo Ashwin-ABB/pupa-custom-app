@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "autoname": "MKD-.#####",
+ "creation": "2026-09-16 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "ticket_status",
+  "date_time",
+  "your_name",
+  "branch",
+  "your_requirements",
+  "your_suggestions",
+  "resolutions",
+  "image_1",
+  "image_2"
+ ],
+ "fields": [
+  {
+   "fieldname": "ticket_status",
+   "fieldtype": "Select",
+   "label": "Ticket Status",
+   "options": "Open\nIn Review\nClosed",
+   "default": "Open",
+   "permlevel": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "date_time",
+   "fieldtype": "Datetime",
+   "default": "Now",
+   "label": "Date and Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "your_name",
+   "fieldtype": "Data",
+   "label": "Your Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch",
+   "reqd": 1
+  },
+  {
+   "fieldname": "your_requirements",
+   "fieldtype": "Small Text",
+   "label": "உங்கள் தேவைகள்"
+  },
+  {
+   "fieldname": "your_suggestions",
+   "fieldtype": "Small Text",
+   "label": "உங்கள் ஆலோசனைகள்"
+  },
+  {
+   "fieldname": "resolutions",
+   "fieldtype": "Small Text",
+   "label": "தீர்வுகள்"
+  },
+  {
+   "fieldname": "image_1",
+   "fieldtype": "Attach Image",
+   "label": "Image 1"
+  },
+  {
+   "fieldname": "image_2",
+   "fieldtype": "Attach Image",
+   "label": "Image 2"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-09-16 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Feedback",
+ "name": "Makkal Kural Details",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "read": 1,
+   "role": "Employee",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
