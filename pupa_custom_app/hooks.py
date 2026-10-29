@@ -256,3 +256,11 @@ app_license = "mit"
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+doc_events = {
+       "Employee Checkin": {
+           "validate": "pupa_custom_app.face_checkin.verify.validate_checkin_face"
+       }
+   }
+
+doctype_js = {"Employee Checkin": "public/js/employee_checkin.js"}
+

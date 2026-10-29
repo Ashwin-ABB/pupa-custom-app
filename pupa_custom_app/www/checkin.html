@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/assets/pupa_custom_app/checkin/manifest.json">
+<link rel="apple-touch-icon" href="/assets/pupa_custom_app/checkin/icon-192.png">
+<title>Check-in</title>
+<style>
+	* { box-sizing: border-box; }
+	body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f1f5f4; color: #0f172a; }
+	.wrap { max-width: 480px; margin: 0 auto; padding: 16px; padding-bottom: env(safe-area-inset-bottom, 16px); }
+	h1 { font-size: 20px; margin: 8px 0 2px; }
+	.sub { color: #475569; font-size: 14px; margin-bottom: 12px; }
+	.cam { position: relative; background: #000; border-radius: 14px; overflow: hidden; aspect-ratio: 3 / 4; }
+	video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+	.row { display: flex; gap: 12px; margin: 14px 0; }
+	button { flex: 1; border: 0; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: 600; color: #fff; }
+	button:disabled { opacity: .45; }
+	#btn-in { background: #15803d; }
+	#btn-out { background: #b91c1c; }
+	#status { min-height: 44px; padding: 10px 12px; border-radius: 10px; background: #e2e8f0; font-size: 15px; }
+	#status.ok { background: #dcfce7; color: #14532d; }
+	#status.err { background: #fee2e2; color: #7f1d1d; }
+	ul { list-style: none; padding: 0; margin: 12px 0 0; }
+	li { background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 14px; }
+	.tag { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+	<h1>{{ employee.employee_name if employee else "Check-in" }}</h1>
+	<div class="sub">{{ employee.name if employee else "No Employee record linked to this user" }}</div>
+
+	<div class="cam"><video id="video" autoplay playsinline muted></video></div>
+
+	<div class="row">
+		<button id="btn-in" disabled>Check In</button>
+		<button id="btn-out" disabled>Check Out</button>
+	</div>
+	<div id="status">Starting camera...</div>
+
+	<h2 style="font-size:16px;margin:18px 0 0;">Today</h2>
+	<ul id="logs"></ul>
+</div>
+
+<script>
+var CSRF = "{{ csrf_token }}";
+var API = "/api/method/pupa_custom_app.face_checkin.api.";
+var video = document.getElementById("video");
+var statusEl = document.getElementById("status");
+var btnIn = document.getElementById("btn-in");
+var btnOut = document.getElementById("btn-out");
+
+function setStatus(text, cls) {
+	statusEl.textContent = text;
+	statusEl.className = cls || "";
+}
+
+function setButtons(enabled) {
+	btnIn.disabled = !enabled;
+	btnOut.disabled = !enabled;
+}
+
+function errorText(data) {
+	try {
+		var msgs = JSON.parse(data._server_messages || "[]");
+		if (msgs.length) {
+			var html = JSON.parse(msgs[0]).message || "";
+			return new DOMParser().parseFromString(html, "text/html").body.textContent;
+		}
+	} catch (e) {}
+	return "Something went wrong. Please try again.";
+}
+
+function loadLogs() {
+	fetch(API + "get_today_logs", { credentials: "same-origin" })
+		.then(function (r) { return r.json(); })
+		.then(function (d) {
+			var ul = document.getElementById("logs");
+			ul.innerHTML = "";
+			(d.message || []).forEach(function (l) {
+				var li = document.createElement("li");
+				var t = String(l.time).substring(11, 16);
+				li.innerHTML = '<span><span class="tag">' + l.log_type + "</span> " + t + "</span><span>" + (l.face_match_status || "") + "</span>";
+				ul.appendChild(li);
+			});
+		});
+}
+
+function getPosition() {
+	return new Promise(function (resolve, reject) {
+		if (!navigator.geolocation) { reject(); return; }
+		navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+	});
+}
+
+function snapshot() {
+	var scale = Math.min(1, 720 / video.videoWidth);
+	var canvas = document.createElement("canvas");
+	canvas.width = Math.round(video.videoWidth * scale);
+	canvas.height = Math.round(video.videoHeight * scale);
+	canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+	return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+function submit(logType) {
+	setButtons(false);
+	setStatus("Getting your location...");
+	getPosition().then(function (pos) {
+		setStatus("Verifying...");
+		var body = new URLSearchParams();
+		body.append("log_type", logType);
+		body.append("photo", snapshot());
+		body.append("latitude", pos.coords.latitude);
+		body.append("longitude", pos.coords.longitude);
+		return fetch(API + "submit_checkin", {
+			method: "POST",
+			credentials: "same-origin",
+			headers: { "X-Frappe-CSRF-Token": CSRF, "Accept": "application/json" },
+			body: body
+		}).then(function (r) {
+			return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+		});
+	}, function () {
+		throw new Error("Location access is required. Please allow location and try again.");
+	}).then(function (res) {
+		if (res.ok && res.data.message) {
+			var m = res.data.message;
+			setStatus(logType + " recorded at " + String(m.time).substring(11, 16) + " (" + (m.face_match_status || "saved") + ")", "ok");
+			loadLogs();
+		} else {
+			setStatus(errorText(res.data), "err");
+		}
+	}).catch(function (e) {
+		setStatus(e && e.message ? e.message : "Could not complete check-in.", "err");
+	}).then(function () {
+		setButtons(true);
+	});
+}
+
+btnIn.onclick = function () { submit("IN"); };
+btnOut.onclick = function () { submit("OUT"); };
+
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+	setStatus("Camera needs a secure (HTTPS) connection.", "err");
+} else {
+	navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+		.then(function (stream) {
+			video.srcObject = stream;
+			setButtons(true);
+			setStatus("Face the camera and tap Check In or Check Out.");
+		})
+		.catch(function () {
+			setStatus("Could not open the camera. Please allow camera access.", "err");
+		});
+	loadLogs();
+}
+</script>
+</body>
+</html>
