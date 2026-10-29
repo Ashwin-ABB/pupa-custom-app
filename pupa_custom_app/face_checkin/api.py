@@ -60,7 +60,7 @@ def submit_checkin(log_type, photo, latitude, longitude):
 				"employee": employee,
 				"log_type": log_type,
 				"time": now_datetime(),
-				"checkin_photo": file_doc.file_url,
+				"fc_photo": file_doc.file_url,
 				"latitude": lat,
 				"longitude": lng,
 			}
@@ -76,7 +76,7 @@ def submit_checkin(log_type, photo, latitude, longitude):
 		{
 			"attached_to_doctype": "Employee Checkin",
 			"attached_to_name": checkin.name,
-			"attached_to_field": "checkin_photo",
+			"attached_to_field": "fc_photo",
 		},
 	)
 	return {

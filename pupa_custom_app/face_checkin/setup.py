@@ -36,7 +36,7 @@ def create_fields():
 					"insert_after": "face_section",
 				},
 				{
-					"fieldname": "checkin_photo",
+					"fieldname": "fc_photo",
 					"label": "Check-in Photo",
 					"fieldtype": "Attach Image",
 					"insert_after": "take_selfie",
@@ -48,7 +48,7 @@ def create_fields():
 					"options": "\nNot Checked\nVerified\nMismatch\nNo Face Detected\nNo Master Photo",
 					"read_only": 1,
 					"no_copy": 1,
-					"insert_after": "checkin_photo",
+					"insert_after": "fc_photo",
 				},
 				{
 					"fieldname": "face_match_score",
@@ -67,7 +67,7 @@ def create_fields():
 
 	# Mark selfie + location mandatory on the form (and on the server).
 	# Biometric device check-ins (they carry a Device ID) are exempt.
-	for fn in ("checkin_photo", "latitude", "longitude"):
+	for fn in ("fc_photo", "latitude", "longitude"):
 		make_property_setter(
 			"Employee Checkin", fn, "mandatory_depends_on", "eval:!doc.device_id", "Code"
 		)

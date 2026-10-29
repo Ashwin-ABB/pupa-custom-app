@@ -86,7 +86,7 @@ def validate_checkin_face(doc, method=None):
 			frappe.throw(_("You can only check in for your own employee record."))
 
 	# 2. Photo is required
-	if not doc.checkin_photo:
+	if not doc.fc_photo:
 		frappe.throw(_("Please upload a check-in photo."))
 
 	# Location is required (captured automatically by the Take Selfie button)
@@ -110,7 +110,7 @@ def validate_checkin_face(doc, method=None):
 		}
 	)
 
-	if not doc.is_new() and not doc.has_value_changed("checkin_photo"):
+	if not doc.is_new() and not doc.has_value_changed("fc_photo"):
 		return
 
 	# 3. Compare with the Employee master photo
@@ -119,7 +119,7 @@ def validate_checkin_face(doc, method=None):
 		doc.face_match_status = "No Master Photo"
 		frappe.throw(_("No photo found in the Employee master for {0}.").format(doc.employee))
 
-	status, score = compare(doc.checkin_photo, master)
+	status, score = compare(doc.fc_photo, master)
 	doc.face_match_status = status
 	doc.face_match_score = score
 

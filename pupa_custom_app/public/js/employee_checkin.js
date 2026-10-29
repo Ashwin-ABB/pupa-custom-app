@@ -12,7 +12,7 @@ frappe.ui.form.on("Employee Checkin", {
 
 	refresh(frm) {
 		// Photo can only be set through the camera button (no gallery upload)
-		frm.set_df_property("checkin_photo", "read_only", 1);
+		frm.set_df_property("fc_photo", "read_only", 1);
 		frm.set_df_property("latitude", "read_only", 1);
 		frm.set_df_property("longitude", "read_only", 1);
 
@@ -87,7 +87,7 @@ function open_selfie_dialog(frm) {
 			.then((r) => r.json())
 			.then((r) => {
 				if (r.message && r.message.file_url) {
-					frm.set_value("checkin_photo", r.message.file_url);
+					frm.set_value("fc_photo", r.message.file_url);
                                         set_location(frm, pos);
 					d.hide();
 					frappe.show_alert({ message: __("Photo captured"), indicator: "green" });
