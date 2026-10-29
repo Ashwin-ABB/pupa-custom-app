@@ -15,11 +15,24 @@ frappe.ui.form.on("Employee Checkin", {
 		frm.set_df_property("checkin_photo", "read_only", 1);
 		frm.set_df_property("latitude", "read_only", 1);
 		frm.set_df_property("longitude", "read_only", 1);
+
+        // Fetch the location automatically as soon as a new check-in opens
+        if (frm.is_new() && !frm.doc.latitude) {
+                auto_fetch_location(frm);
+        }
 	},
 
 	take_selfie(frm) {
-		open_selfie_dialog(frm);
-	},
+                if (!frm.doc.employee || !frm.doc.log_type) {
+                        frappe.msgprint({
+                                title: __("Missing details"),
+                                message: __("Please select the Employee and Log Type before capturing the photo."),
+                                indicator: "orange",
+                        });
+                        return;
+                }
+                open_selfie_dialog(frm);
+        },
 });
 
 function open_selfie_dialog(frm) {
@@ -74,11 +87,8 @@ function open_selfie_dialog(frm) {
 			.then((r) => r.json())
 			.then((r) => {
 				if (r.message && r.message.file_url) {
-					frm.set_value({
-						checkin_photo: r.message.file_url,
-						latitude: pos.coords.latitude,
-						longitude: pos.coords.longitude,
-					});
+					frm.set_value("checkin_photo", r.message.file_url);
+                                        set_location(frm, pos);
 					d.hide();
 					frappe.show_alert({ message: __("Photo captured"), indicator: "green" });
 				} else {
@@ -118,4 +128,36 @@ function get_position() {
 			maximumAge: 0,
 		});
 	});
+}
+
+function auto_fetch_location(frm) {
+        get_position()
+                .then((pos) => set_location(frm, pos))
+                .catch(() => {
+                        frappe.show_alert({
+                                message: __("Location access is needed. Please allow location in your browser."),
+                                indicator: "orange",
+                        });
+                });
+}
+
+function set_location(frm, pos) {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        frm.set_value({ latitude: lat, longitude: lng });
+        if (frm.fields_dict.geolocation) {
+                frm.set_value(
+                        "geolocation",
+                        JSON.stringify({
+                                type: "FeatureCollection",
+                                features: [
+                                        {
+                                                type: "Feature",
+                                                properties: {},
+                                                geometry: { type: "Point", coordinates: [lng, lat] },
+                                        },
+                                ],
+                        })
+                );
+        }
 }
