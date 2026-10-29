@@ -25,7 +25,7 @@ def get_today_logs():
 			"employee": employee,
 			"time": ["between", [nowdate() + " 00:00:00", nowdate() + " 23:59:59"]],
 		},
-		fields=["name", "log_type", "time", "face_match_status"],
+		fields=["name", "log_type", "time", "fc_match_status"],
 		order_by="time asc",
 	)
 
@@ -83,6 +83,6 @@ def submit_checkin(log_type, photo, latitude, longitude):
 		"name": checkin.name,
 		"log_type": checkin.log_type,
 		"time": str(checkin.time),
-		"face_match_status": checkin.get("face_match_status"),
-		"face_match_score": checkin.get("face_match_score"),
+		"fc_match_status": checkin.get("fc_match_status"),
+		"fc_match_score": checkin.get("fc_match_score"),
 	}

@@ -16,7 +16,7 @@ def create_fields():
 					"fieldtype": "Float",
 					"precision": "9",
 					"read_only": 1,
-					"insert_after": "face_match_score",
+					"insert_after": "fc_match_score",
 				}
 			)
 
@@ -42,7 +42,7 @@ def create_fields():
 					"insert_after": "take_selfie",
 				},
 				{
-					"fieldname": "face_match_status",
+					"fieldname": "fc_match_status",
 					"label": "Face Match Status",
 					"fieldtype": "Select",
 					"options": "\nNot Checked\nVerified\nMismatch\nNo Face Detected\nNo Master Photo",
@@ -51,13 +51,13 @@ def create_fields():
 					"insert_after": "fc_photo",
 				},
 				{
-					"fieldname": "face_match_score",
+					"fieldname": "fc_match_score",
 					"label": "Face Match Score",
 					"fieldtype": "Float",
 					"precision": "3",
 					"read_only": 1,
 					"no_copy": 1,
-					"insert_after": "face_match_status",
+					"insert_after": "fc_match_status",
 				},
 			]
 			+ geo

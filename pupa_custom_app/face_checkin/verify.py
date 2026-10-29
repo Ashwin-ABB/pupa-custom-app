@@ -116,12 +116,12 @@ def validate_checkin_face(doc, method=None):
 	# 3. Compare with the Employee master photo
 	master = frappe.db.get_value("Employee", doc.employee, "image")
 	if not master:
-		doc.face_match_status = "No Master Photo"
+		doc.fc_match_status = "No Master Photo"
 		frappe.throw(_("No photo found in the Employee master for {0}.").format(doc.employee))
 
 	status, score = compare(doc.fc_photo, master)
-	doc.face_match_status = status
-	doc.face_match_score = score
+	doc.fc_match_status = status
+	doc.fc_match_score = score
 
 	if status == "Verified":
 		doc.skip_auto_attendance = 0
