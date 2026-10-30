@@ -64,13 +64,13 @@ def compare(photo_url, master_url):
 	_, rec = _get_models()
 	a, b = _read_image(photo_url), _read_image(master_url)
 	if a is None or b is None:
-		return "No Face Detected", None
+		return "Review", None
 	ea, eb = _embedding(a), _embedding(b)
 	if ea is None or eb is None:
-		return "No Face Detected", None
+		return "Review", None
 	score = float(rec.match(ea, eb, cv2.FaceRecognizerSF_FR_COSINE))
 	threshold = float(frappe.conf.get("face_checkin_threshold", 0.363))
-	return ("Verified" if score >= threshold else "Mismatch"), score
+	return ("Matched" if score >= threshold else "Failed"), score
 
 
 def validate_checkin_face(doc, method=None):
@@ -116,14 +116,14 @@ def validate_checkin_face(doc, method=None):
 	# 3. Compare with the Employee master photo
 	master = frappe.db.get_value("Employee", doc.employee, "image")
 	if not master:
-		doc.fc_match_status = "No Master Photo"
+		doc.fc_match_status = "Review"
 		frappe.throw(_("No photo found in the Employee master for {0}.").format(doc.employee))
 
 	status, score = compare(doc.fc_photo, master)
 	doc.fc_match_status = status
 	doc.fc_match_score = score
 
-	if status == "Verified":
+	if status == "Matched":
 		doc.skip_auto_attendance = 0
 		return
 
@@ -132,7 +132,7 @@ def validate_checkin_face(doc, method=None):
 	if frappe.conf.get("face_checkin_mode", "block") == "block":
 		msg = (
 			_("No face detected in the photo. Please retake it facing the camera.")
-			if status == "No Face Detected"
+			if status == "Review"
 			else _("Face does not match the employee record.")
 		)
 		frappe.throw(msg)

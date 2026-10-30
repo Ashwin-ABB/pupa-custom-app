@@ -45,7 +45,7 @@ def create_fields():
 					"fieldname": "fc_match_status",
 					"label": "Face Match Status",
 					"fieldtype": "Select",
-					"options": "\nNot Checked\nVerified\nMismatch\nNo Face Detected\nNo Master Photo",
+					"options": "\nNot Checked\nMatched\nReview\nFailed",
 					"read_only": 1,
 					"no_copy": 1,
 					"insert_after": "fc_photo",
