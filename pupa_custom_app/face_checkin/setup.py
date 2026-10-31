@@ -30,7 +30,7 @@ def create_fields():
 					"insert_after": "log_type",
 				},
 				{
-					"fieldname": "take_selfie",
+					"fieldname": "custom_take_selfie",
 					"label": "Take Selfie",
 					"fieldtype": "Button",
 					"insert_after": "face_section",
@@ -39,7 +39,7 @@ def create_fields():
 					"fieldname": "fc_photo",
 					"label": "Check-in Photo",
 					"fieldtype": "Attach Image",
-					"insert_after": "take_selfie",
+					"insert_after": "custom_take_selfie",
 				},
 				{
 					"fieldname": "fc_match_status",

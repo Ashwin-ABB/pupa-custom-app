@@ -22,7 +22,7 @@ frappe.ui.form.on("Employee Checkin", {
         }
 	},
 
-	take_selfie(frm) {
+	custom_take_selfie(frm) {
                 if (!frm.doc.employee || !frm.doc.log_type) {
                         frappe.msgprint({
                                 title: __("Missing details"),
